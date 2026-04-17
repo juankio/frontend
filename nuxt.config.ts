@@ -55,7 +55,9 @@ export default defineNuxtConfig({
         'glsl-token-string',
         'glsl-token-functions',
         'glsl-tokenizer',
-        'stats.js'
+        'stats.js',
+        'three-mesh-bvh',
+        'three-stdlib'
       ]
     },
     build: {

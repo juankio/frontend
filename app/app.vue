@@ -30,6 +30,7 @@ onBeforeUnmount(() => {
 
 <template>
   <UApp>
+    <NuxtLoadingIndicator color="#A5845C" :height="4" />
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
