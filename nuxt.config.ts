@@ -6,6 +6,8 @@ export default defineNuxtConfig({
     '@tresjs/nuxt'
   ],
 
+  ssr: false,
+
   devtools: {
     enabled: true
   },
@@ -22,8 +24,45 @@ export default defineNuxtConfig({
     }
   },
 
-  routeRules: {
-    '/': { prerender: true }
+  build: {
+    transpile: [
+      'three', 
+      '@tresjs/core', 
+      '@tresjs/cientos',
+      'three-custom-shader-material',
+      'stats.js'
+    ]
+  },
+
+  vite: {
+    resolve: {
+      alias: {
+        'stats.js': 'stats.js/src/Stats.js'
+      }
+    },
+    optimizeDeps: {
+      include: [
+        'three', 
+        '@tresjs/core', 
+        '@tresjs/cientos',
+        '@vue/devtools-core',
+        '@vue/devtools-kit',
+        'lenis',
+        'gsap',
+        'gsap/ScrollTrigger',
+        'three-custom-shader-material',
+        'object-hash',
+        'glsl-token-string',
+        'glsl-token-functions',
+        'glsl-tokenizer',
+        'stats.js'
+      ]
+    },
+    build: {
+      commonjsOptions: {
+        transformMixedEsModules: true,
+      }
+    }
   },
 
   compatibilityDate: '2025-01-15',

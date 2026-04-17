@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import Lenis from 'lenis'
-import { onMounted, onBeforeUnmount } from 'vue'
 
 useHead({
   title: 'Artisan Woodworks',
