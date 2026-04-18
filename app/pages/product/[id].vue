@@ -1,7 +1,9 @@
 <script setup lang="ts">
+import { useCartStore } from '~/stores/cart'
+
 const route = useRoute()
 const { products, pending, refresh } = useProducts()
-const { addToCart } = useCart()
+const cartStore = useCartStore()
 
 const productId = computed(() => Number(route.params.id))
 const product = computed(() => products.value?.find((p: any) => p.id === productId.value))
@@ -186,7 +188,7 @@ const initiateCheckout = async () => {
             {{ product.stock > 0 ? 'Comprar Ahora' : 'Agotado' }}
           </UButton>
           
-          <UButton @click="addToCart(product)" :disabled="product.stock <= 0" :ui="{ rounded: 'rounded-sm' }" class="px-8 py-5 uppercase tracking-[0.2em] bg-transparent border border-[#EAE5DC] text-[#2C241B] hover:bg-[#FDFBF7] hover:border-[#C5A059] justify-center text-xs font-bold transition-all duration-500 flex-1">
+          <UButton @click="cartStore.addToCart(product)" :disabled="product.stock <= 0" :ui="{ rounded: 'rounded-sm' }" class="px-8 py-5 uppercase tracking-[0.2em] bg-transparent border border-[#EAE5DC] text-[#2C241B] hover:bg-[#FDFBF7] hover:border-[#C5A059] justify-center text-xs font-bold transition-all duration-500 flex-1">
             Añadir a Cesta
           </UButton>
         </div>
@@ -291,7 +293,7 @@ const initiateCheckout = async () => {
           </div>
 
           <!-- Imagen de Portada -->
-          <img v-show="activeView === 'photo' || !product.model3DUrl" :src="product.coverImage" :alt="product.name" class="absolute inset-0 w-full h-full object-cover opacity-90 transition-transform duration-[2s] group-hover:scale-[1.02]" />
+          <img v-show="activeView === 'photo' || !product.model3DUrl" :src="product.coverImage" :alt="product.name" class="absolute inset-0 w-full h-full object-contain opacity-90 transition-transform duration-[2s] group-hover:scale-[1.02]" />
 
           <!-- El componente 3D (Google Model Viewer con AR) -->
           <ClientOnly v-if="product.model3DUrl">

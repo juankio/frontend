@@ -122,117 +122,125 @@ useHead({ title: 'Admin Dashboard | Artisan' })
 </script>
 
 <template>
-  <div class="min-h-screen bg-[#F9F8F6] p-8 md:p-12">
+  <div class="min-h-screen bg-[#F9F6F0] p-8 md:p-16 font-['DM_Sans',sans-serif]">
     <!-- Header -->
-    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center mb-12 border-b border-[#DCD0C0] pb-6 gap-4">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-end mb-16 border-b-2 border-[#2C241B] pb-8 gap-6">
       <div>
-        <h1 class="text-4xl font-serif text-[#1C1A17]">Artisan Atelier</h1>
-        <p class="text-[#715233] mt-2">Panel de control y gestión de colección</p>
+        <p class="text-[#C5A059] text-[10px] uppercase tracking-[0.3em] font-bold mb-2">Administración</p>
+        <h1 class="text-5xl font-['Fraunces',serif] text-[#2C241B] tracking-tight">Artisan Atelier</h1>
       </div>
       <div class="flex gap-4">
-        <UButton @click="openAddModal" color="neutral" icon="i-lucide-plus" class="bg-[#1C1A17] text-white hover:bg-[#4B3723] rounded-none px-6 py-3 uppercase tracking-widest text-sm font-semibold transition-colors">
+        <button @click="openAddModal" class="bg-[#2C241B] text-[#F9F6F0] hover:bg-[#C5A059] hover:text-[#2C241B] rounded-sm px-8 py-4 uppercase tracking-[0.2em] text-[10px] font-bold transition-all duration-300">
           Añadir Pieza
-        </UButton>
-        <UButton @click="logout" color="neutral" variant="outline" icon="i-lucide-log-out" class="border-[#DCD0C0] text-[#715233] hover:text-[#1C1A17] rounded-none px-6">
+        </button>
+        <button @click="logout" class="border border-[#EAE5DC] text-[#2C241B] hover:border-[#2C241B] rounded-sm px-8 py-4 uppercase tracking-[0.2em] text-[10px] font-bold transition-all duration-300">
           Salir
-        </UButton>
+        </button>
       </div>
     </div>
 
     <!-- Lista de Productos -->
     <div class="max-w-7xl mx-auto">
-      <div v-if="pending" class="flex justify-center items-center py-20">
-        <UIcon name="i-lucide-loader-2" class="w-12 h-12 text-[#A5845C] animate-spin" />
+      <div v-if="pending" class="flex justify-center items-center py-32">
+        <UIcon name="i-lucide-loader-2" class="w-12 h-12 text-[#C5A059] animate-spin" />
       </div>
 
-      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        <div v-for="product in products" :key="product.id" class="bg-white p-6 rounded-2xl shadow-sm border border-[#EAE3D9] flex flex-col hover:shadow-md transition-shadow">
-          <div class="flex gap-4 mb-6">
-            <div class="w-24 h-24 bg-[#F7F5F2] rounded-xl overflow-hidden shrink-0">
-              <img v-if="product.coverImage" :src="product.coverImage" class="w-full h-full object-cover" />
-            </div>
-            <div>
-              <h3 class="font-serif text-xl text-[#1C1A17] line-clamp-1">{{ product.name }}</h3>
-              <p class="text-[#8C6A42] font-medium">{{ product.formattedPrice }}</p>
-              <div class="flex items-center gap-2 mt-2 text-xs">
-                <span class="bg-[#EAE3D9] text-[#4B3723] px-2 py-1 rounded-full">Stock: {{ product.stock }}</span>
-                <span v-if="product.model3DUrl" class="bg-[#1C1A17] text-white px-2 py-1 rounded-full flex items-center gap-1"><UIcon name="i-lucide-box" class="w-3 h-3" /> 3D</span>
-              </div>
+      <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        <div v-for="product in products" :key="product.id" class="bg-[#FDFBF7] flex flex-col border border-[#EAE5DC] group hover:border-[#C5A059]/40 transition-colors duration-500 rounded-sm overflow-hidden shadow-[0_4px_24px_rgba(44,36,27,0.03)]">
+          <div class="w-full aspect-[4/5] bg-[#F9F6F0] overflow-hidden border-b border-[#EAE5DC] relative p-8 flex items-center justify-center">
+            <img v-if="product.coverImage" :src="product.coverImage" class="w-full h-full object-contain mix-blend-multiply transition-transform duration-1000 group-hover:scale-105" />
+            <div v-if="product.model3DUrl" class="absolute top-4 right-4 bg-[#2C241B] text-[#F9F6F0] px-3 py-1.5 rounded-sm flex items-center gap-2 text-[9px] uppercase tracking-widest font-bold">
+              <UIcon name="i-lucide-box" class="w-3.5 h-3.5" /> 3D
             </div>
           </div>
-          <div class="mt-auto flex gap-3 border-t border-[#F7F5F2] pt-4">
-            <UButton @click="openEditModal(product)" color="neutral" variant="ghost" class="text-[#8C6A42] hover:bg-[#FDFBF7]" icon="i-lucide-pencil">
-              Editar
-            </UButton>
-            <UButton @click="deleteProduct(product.id)" color="error" variant="ghost" class="text-red-500 hover:bg-red-50" icon="i-lucide-trash-2">
-              Eliminar
-            </UButton>
+          <div class="p-8 flex flex-col flex-1">
+            <h3 class="font-['Fraunces',serif] text-2xl text-[#2C241B] line-clamp-2 leading-tight">{{ product.name }}</h3>
+            <p class="text-[#C5A059] font-['Fraunces',serif] italic mt-2 text-lg">{{ product.formattedPrice }}</p>
+            
+            <div class="mt-4 flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-[#2C241B]/50">
+              <span>Stock: {{ product.stock }}</span>
+            </div>
+            
+            <div class="mt-8 flex gap-6 pt-6 border-t border-[#EAE5DC]">
+              <button @click="openEditModal(product)" class="flex-1 text-left text-[#2C241B] hover:text-[#C5A059] text-[10px] uppercase tracking-widest font-bold transition-colors">
+                Editar Pieza
+              </button>
+              <button @click="deleteProduct(product.id)" class="text-right text-[#2C241B]/30 hover:text-red-700 text-[10px] uppercase tracking-widest font-bold transition-colors">
+                Eliminar
+              </button>
+            </div>
           </div>
         </div>
       </div>
     </div>
 
     <!-- Modal Añadir Producto -->
-    <UModal v-model:open="isModalOpen" title="Crear Nueva Pieza">
-      <template #body>
-        <form @submit.prevent="saveProduct" class="flex flex-col gap-5 p-2">
-          
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label class="block text-xs uppercase tracking-widest font-semibold text-[#8C6A42] mb-1.5">Nombre de la pieza</label>
-              <UInput v-model="form.name" required color="neutral" variant="outline" class="w-full" placeholder="Ej. Silla Nórdica" />
-            </div>
-            <div>
-              <label class="block text-xs uppercase tracking-widest font-semibold text-[#8C6A42] mb-1.5">Precio (USD)</label>
-              <UInput v-model="form.price" type="number" required color="neutral" variant="outline" icon="i-lucide-dollar-sign" class="w-full" placeholder="850" />
-            </div>
+    <UModal v-model:open="isModalOpen" :ui="{ content: 'rounded-sm sm:rounded-sm sm:max-w-3xl border border-[#EAE5DC] shadow-2xl bg-[#FDFBF7]' }">
+      <template #content>
+        <div class="bg-[#FDFBF7] p-8 md:p-14 font-['DM_Sans',sans-serif] border-[3px] border-double border-[#EAE5DC] m-2">
+          <div class="border-b-2 border-t-2 border-[#2C241B] py-6 mb-10 text-center">
+            <h2 class="font-['Fraunces',serif] text-3xl md:text-4xl text-[#2C241B] uppercase tracking-widest">
+              {{ form.id ? 'Edición de Pieza' : 'Registro de Pieza' }}
+            </h2>
+            <p class="text-[10px] uppercase tracking-[0.3em] text-[#C5A059] mt-3 font-bold">Artisan Atelier // Formulario Oficial</p>
           </div>
 
-          <div>
-            <label class="block text-xs uppercase tracking-widest font-semibold text-[#8C6A42] mb-1.5">Descripción</label>
-            <UTextarea v-model="form.description" required color="neutral" variant="outline" :rows="3" class="w-full" placeholder="Narra la historia de esta pieza..." />
-          </div>
-
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label class="block text-xs uppercase tracking-widest font-semibold text-[#8C6A42] mb-1.5">Material (Madera)</label>
-              <UInput v-model="form.material" required color="neutral" variant="outline" class="w-full" placeholder="Ej. Roble Macizo" />
+          <form @submit.prevent="saveProduct" class="flex flex-col gap-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="border-b border-[#EAE5DC] pb-2 relative">
+                <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] mb-3">Nombre de la pieza</label>
+                <input v-model="form.name" required type="text" class="w-full bg-transparent border-none focus:ring-0 p-0 text-[#2C241B] text-lg font-['Fraunces',serif] placeholder-[#2C241B]/20 focus:outline-none" placeholder="Ej. Silla Nórdica" />
+              </div>
+              <div class="border-b border-[#EAE5DC] pb-2 relative">
+                <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] mb-3">Precio (COP)</label>
+                <input v-model="form.price" required type="number" class="w-full bg-transparent border-none focus:ring-0 p-0 text-[#2C241B] text-lg font-['Fraunces',serif] placeholder-[#2C241B]/20 focus:outline-none" placeholder="850000" />
+              </div>
             </div>
-            <div>
-              <label class="block text-xs uppercase tracking-widest font-semibold text-[#8C6A42] mb-1.5">Medidas</label>
-              <UInput v-model="form.dimensions" required color="neutral" variant="outline" class="w-full" placeholder="Ej. 80cm x 60cm x 45cm" />
-            </div>
-          </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label class="block text-xs uppercase tracking-widest font-semibold text-[#8C6A42] mb-1.5">URL Imagen (Portada)</label>
-              <UInput v-model="form.coverImage" required color="neutral" variant="outline" icon="i-lucide-image" class="w-full" placeholder="https://..." />
+            <div class="border-b border-[#EAE5DC] pb-2 relative">
+              <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] mb-3">Descripción (Historia y Origen)</label>
+              <textarea v-model="form.description" required rows="3" class="w-full bg-transparent border-none focus:ring-0 p-0 text-[#2C241B] resize-none placeholder-[#2C241B]/20 focus:outline-none" placeholder="Narra la historia de esta pieza..."></textarea>
             </div>
-            <div>
-              <label class="block text-xs uppercase tracking-widest font-semibold text-[#8C6A42] mb-1.5">URL Modelo 3D (.glb, opcional)</label>
-              <UInput v-model="form.model3DUrl" color="neutral" variant="outline" icon="i-lucide-box" class="w-full" placeholder="https://.../mueble.glb" />
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="border-b border-[#EAE5DC] pb-2 relative">
+                <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] mb-3">Material (Madera)</label>
+                <input v-model="form.material" required type="text" class="w-full bg-transparent border-none focus:ring-0 p-0 text-[#2C241B] placeholder-[#2C241B]/20 focus:outline-none" placeholder="Ej. Roble Macizo" />
+              </div>
+              <div class="border-b border-[#EAE5DC] pb-2 relative">
+                <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] mb-3">Dimensiones</label>
+                <input v-model="form.dimensions" required type="text" class="w-full bg-transparent border-none focus:ring-0 p-0 text-[#2C241B] placeholder-[#2C241B]/20 focus:outline-none" placeholder="Ej. 80cm x 60cm x 45cm" />
+              </div>
             </div>
-          </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label class="block text-xs uppercase tracking-widest font-semibold text-[#8C6A42] mb-1.5">Stock Inicial</label>
-              <UInput v-model="form.stock" type="number" required color="neutral" variant="outline" class="w-full" />
+            <div class="border-b border-[#EAE5DC] pb-2 relative">
+              <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] mb-3">URL Imagen (Fotografía Oficial)</label>
+              <input v-model="form.coverImage" required type="url" class="w-full bg-transparent border-none focus:ring-0 p-0 text-[#2C241B] placeholder-[#2C241B]/20 focus:outline-none" placeholder="https://..." />
             </div>
-          </div>
 
-          <p v-if="errorMsg" class="text-red-500 text-sm font-medium mt-2">{{ errorMsg }}</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div class="border-b border-[#EAE5DC] pb-2 relative">
+                <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] mb-3">URL Modelo 3D (Opcional)</label>
+                <input v-model="form.model3DUrl" type="url" class="w-full bg-transparent border-none focus:ring-0 p-0 text-[#2C241B] placeholder-[#2C241B]/20 focus:outline-none" placeholder="https://.../mueble.glb" />
+              </div>
+              <div class="border-b border-[#EAE5DC] pb-2 relative">
+                <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] mb-3">Inventario Físico</label>
+                <input v-model="form.stock" required type="number" class="w-full bg-transparent border-none focus:ring-0 p-0 text-[#2C241B] placeholder-[#2C241B]/20 focus:outline-none" />
+              </div>
+            </div>
 
-          <div class="mt-6 flex justify-end gap-3">
-            <UButton type="button" @click="isModalOpen = false" color="neutral" variant="ghost" class="text-[#715233]">
-              Cancelar
-            </UButton>
-            <UButton type="submit" :loading="isSubmitting" color="neutral" class="bg-[#1C1A17] text-white hover:bg-[#4B3723] rounded-none px-8 uppercase tracking-widest text-sm font-semibold">
-              Guardar Pieza
-            </UButton>
-          </div>
-        </form>
+            <p v-if="errorMsg" class="text-red-800 bg-red-50 p-4 border border-red-200 text-xs font-bold uppercase tracking-widest text-center">{{ errorMsg }}</p>
+
+            <div class="mt-8 flex justify-between items-center pt-8 border-t border-[#EAE5DC]">
+              <button type="button" @click="isModalOpen = false" class="text-[#2C241B]/50 hover:text-[#2C241B] uppercase tracking-[0.2em] text-[10px] font-bold transition-colors">
+                Anular Formulario
+              </button>
+              <button type="submit" :disabled="isSubmitting" class="bg-[#2C241B] text-[#F9F6F0] hover:bg-[#C5A059] hover:text-[#2C241B] rounded-sm px-10 py-4 uppercase tracking-[0.2em] text-[10px] font-bold transition-all duration-300 disabled:opacity-50">
+                {{ isSubmitting ? 'Archivando...' : 'Archivar en Colección' }}
+              </button>
+            </div>
+          </form>
+        </div>
       </template>
     </UModal>
   </div>

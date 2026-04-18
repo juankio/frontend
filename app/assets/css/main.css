@@ -1,18 +1,52 @@
 @import "tailwindcss";
 @import "@nuxt/ui";
 
-@theme static {
-  --font-sans: 'Public Sans', sans-serif;
+@theme {
+  --font-sans: 'DM Sans', sans-serif;
+  --font-serif: 'Fraunces', serif;
 
-  --color-green-50: #EFFDF5;
-  --color-green-100: #D9FBE8;
-  --color-green-200: #B3F5D1;
-  --color-green-300: #75EDAE;
-  --color-green-400: #00DC82;
-  --color-green-500: #00C16A;
-  --color-green-600: #00A155;
-  --color-green-700: #007F45;
-  --color-green-800: #016538;
-  --color-green-900: #0A5331;
-  --color-green-950: #052E16;
+  --color-wood-50: #F7F5F2;
+  --color-wood-100: #EAE3D9;
+  --color-wood-200: #DCD0C0;
+  --color-wood-300: #CBB9A2;
+  --color-wood-400: #B79D7C;
+  --color-wood-500: #A5845C; /* Madera natural */
+  --color-wood-600: #8C6A42;
+  --color-wood-700: #715233;
+  --color-wood-800: #5D432A;
+  --color-wood-900: #4B3723; /* Nogal oscuro */
+  --color-wood-950: #2C1E12;
+
+  --color-paper-bg: #F9F8F6; /* Fondo blanco roto Awwwards */
+  --color-ink: #1C1A17; /* Texto principal oscuro pero no negro */
+}
+
+/* Configuracion base para Lenis y Lenis Scroll */
+html.lenis, html.lenis body {
+  height: auto;
+}
+
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+
+.lenis.lenis-smooth [data-lenis-prevent] {
+  overscroll-behavior: contain;
+}
+
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+.lenis.lenis-scrolling iframe {
+  pointer-events: none;
+}
+
+body {
+  @apply bg-[#F9F8F6] text-[#1C1A17] font-sans antialiased selection:bg-wood-300 selection:text-wood-950;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  @apply font-serif font-light tracking-tight;
 }
