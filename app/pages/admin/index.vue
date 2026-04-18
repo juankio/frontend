@@ -22,18 +22,20 @@ const isSubmitting = ref(false)
 const errorMsg = ref('')
 
 const form = ref({
+  id: null as number | null,
   name: '',
   price: 0,
   description: '',
   material: '',
   dimensions: '',
   coverImage: '',
+  model3DUrl: '',
   stock: 1
 })
 
 const resetForm = () => {
   form.value = {
-    name: '', price: 0, description: '', material: '', dimensions: '', coverImage: '', stock: 1
+    id: null, name: '', price: 0, description: '', material: '', dimensions: '', coverImage: '', model3DUrl: '', stock: 1
   }
 }
 
@@ -42,24 +44,51 @@ const openAddModal = () => {
   isModalOpen.value = true
 }
 
+const openEditModal = (product: any) => {
+  form.value = {
+    id: product.id,
+    name: product.name || '',
+    price: product.price, // It's in COP integers
+    description: product.description || '',
+    material: product.material || '',
+    dimensions: product.dimensions || '',
+    coverImage: product.coverImage || '',
+    model3DUrl: product.model3DUrl || '',
+    stock: product.stock !== undefined ? product.stock : 1
+  }
+  isModalOpen.value = true
+}
+
 const saveProduct = async () => {
   isSubmitting.value = true
   errorMsg.value = ''
   
   try {
-    // Format price (cents to integer handled by v-model roughly but we assume user enters normal price and we multiply by 100)
     const payload = {
-      ...form.value,
-      price: Math.round(Number(form.value.price) * 100) // Convert to cents
+      name: form.value.name,
+      price: Math.round(Number(form.value.price)),
+      description: form.value.description,
+      material: form.value.material,
+      dimensions: form.value.dimensions,
+      coverImage: form.value.coverImage,
+      model3DUrl: form.value.model3DUrl || null,
+      stock: form.value.stock
     }
     
-    const res = await $fetch('http://127.0.0.1:5000/api/products', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${authCookie.value}`
-      },
-      body: payload
-    })
+    let res;
+    if (form.value.id) {
+      res = await $fetch(`http://127.0.0.1:5000/api/products/${form.value.id}`, {
+        method: 'PUT',
+        headers: { 'Authorization': `Bearer ${authCookie.value}` },
+        body: payload
+      })
+    } else {
+      res = await $fetch('http://127.0.0.1:5000/api/products', {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${authCookie.value}` },
+        body: payload
+      })
+    }
     
     if (res.success) {
       isModalOpen.value = false
@@ -132,10 +161,12 @@ useHead({ title: 'Admin Dashboard | Artisan' })
             </div>
           </div>
           <div class="mt-auto flex gap-3 border-t border-[#F7F5F2] pt-4">
+            <UButton @click="openEditModal(product)" color="neutral" variant="ghost" class="text-[#8C6A42] hover:bg-[#FDFBF7]" icon="i-lucide-pencil">
+              Editar
+            </UButton>
             <UButton @click="deleteProduct(product.id)" color="error" variant="ghost" class="text-red-500 hover:bg-red-50" icon="i-lucide-trash-2">
               Eliminar
             </UButton>
-            <!-- El edit queda como TODO opcional para mantenerlo rápido -->
           </div>
         </div>
       </div>
@@ -178,6 +209,13 @@ useHead({ title: 'Admin Dashboard | Artisan' })
               <label class="block text-xs uppercase tracking-widest font-semibold text-[#8C6A42] mb-1.5">URL Imagen (Portada)</label>
               <UInput v-model="form.coverImage" required color="neutral" variant="outline" icon="i-lucide-image" class="w-full" placeholder="https://..." />
             </div>
+            <div>
+              <label class="block text-xs uppercase tracking-widest font-semibold text-[#8C6A42] mb-1.5">URL Modelo 3D (.glb, opcional)</label>
+              <UInput v-model="form.model3DUrl" color="neutral" variant="outline" icon="i-lucide-box" class="w-full" placeholder="https://.../mueble.glb" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
             <div>
               <label class="block text-xs uppercase tracking-widest font-semibold text-[#8C6A42] mb-1.5">Stock Inicial</label>
               <UInput v-model="form.stock" type="number" required color="neutral" variant="outline" class="w-full" />

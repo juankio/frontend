@@ -39,8 +39,8 @@ useHead({
             <!-- Hover Overlay -->
             <div class="absolute inset-0 bg-[#2C241B]/0 group-hover:bg-[#2C241B]/10 transition-colors duration-500 flex items-center justify-center">
               <span class="opacity-0 group-hover:opacity-100 transform translate-y-4 group-hover:translate-y-0 transition-all duration-500 bg-[#F9F6F0] text-[#2C241B] px-6 py-3 rounded-sm text-xs font-bold tracking-[0.2em] uppercase border border-[#C5A059]/30 flex items-center gap-2">
-                <UIcon name="i-lucide-box" class="w-4 h-4 text-[#C5A059]" />
-                Ver 3D
+                <UIcon name="i-lucide-eye" class="w-4 h-4 text-[#C5A059]" />
+                Ver Detalles
               </span>
             </div>
             
