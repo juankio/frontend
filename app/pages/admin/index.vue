@@ -29,13 +29,13 @@ const form = ref({
   material: '',
   dimensions: '',
   coverImage: '',
-  model3DUrl: '',
+  hotspots: '',
   stock: 1
 })
 
 const resetForm = () => {
   form.value = {
-    id: null, name: '', price: 0, description: '', material: '', dimensions: '', coverImage: '', model3DUrl: '', stock: 1
+    id: null, name: '', price: 0, description: '', material: '', dimensions: '', coverImage: '', hotspots: '', stock: 1
   }
 }
 
@@ -53,7 +53,7 @@ const openEditModal = (product: any) => {
     material: product.material || '',
     dimensions: product.dimensions || '',
     coverImage: product.coverImage || '',
-    model3DUrl: product.model3DUrl || '',
+    hotspots: product.hotspots || '',
     stock: product.stock !== undefined ? product.stock : 1
   }
   isModalOpen.value = true
@@ -71,11 +71,11 @@ const saveProduct = async () => {
       material: form.value.material,
       dimensions: form.value.dimensions,
       coverImage: form.value.coverImage,
-      model3DUrl: form.value.model3DUrl || null,
+      hotspots: form.value.hotspots || null,
       stock: form.value.stock
     }
     
-    let res;
+    let res: any;
     if (form.value.id) {
       res = await $fetch(`http://127.0.0.1:5000/api/products/${form.value.id}`, {
         method: 'PUT',
@@ -220,8 +220,8 @@ useHead({ title: 'Admin Dashboard | Artisan' })
 
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div class="border-b border-[#EAE5DC] pb-2 relative">
-                <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] mb-3">URL Modelo 3D (Opcional)</label>
-                <input v-model="form.model3DUrl" type="url" class="w-full bg-transparent border-none focus:ring-0 p-0 text-[#2C241B] placeholder-[#2C241B]/20 focus:outline-none" placeholder="https://.../mueble.glb" />
+                <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] mb-3">Hotspots (JSON Array - x, y, title, description)</label>
+                <textarea v-model="form.hotspots" rows="3" class="w-full bg-transparent border-none focus:ring-0 p-0 text-[#2C241B] resize-none placeholder-[#2C241B]/20 focus:outline-none font-mono text-[10px]" placeholder='[{"x":30,"y":35,"title":"Veta","description":"..."}]'></textarea>
               </div>
               <div class="border-b border-[#EAE5DC] pb-2 relative">
                 <label class="block text-[10px] uppercase tracking-[0.2em] font-bold text-[#C5A059] mb-3">Inventario Físico</label>

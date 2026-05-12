@@ -16,9 +16,6 @@ export default defineNuxtConfig({
 
   app: {
     head: {
-      script: [
-        { type: 'module', src: 'https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js' }
-      ],
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         { rel: 'preconnect', href: 'https://fonts.gstatic.com', crossorigin: '' },
@@ -45,12 +42,6 @@ export default defineNuxtConfig({
   },
 
   compatibilityDate: '2025-01-15',
-
-  vue: {
-    compilerOptions: {
-      isCustomElement: tag => tag === 'model-viewer'
-    }
-  },
 
   eslint: {
     config: {

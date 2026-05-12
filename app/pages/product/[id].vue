@@ -8,17 +8,13 @@ const cartStore = useCartStore()
 const productId = computed(() => Number(route.params.id))
 const product = computed(() => products.value?.find((p: any) => p.id === productId.value))
 
-const isGenerating = ref(false)
-const activeView = ref<'photo' | '3d'>('photo')
+
+const isInspectingMode = ref(false)
 const isCheckoutOpen = ref(false)
 const isProcessingPayment = ref(false)
 const paymentStatus = ref<'idle' | 'success' | 'error'>('idle')
 
-watch(() => product.value?.model3DUrl, (url) => {
-  if (url) {
-    activeView.value = '3d'
-  }
-}, { immediate: true })
+// Watch for view change is no longer needed since we aren't loading 3d models
 
 // Checkout Form
 const userCookie = useCookie<{ name: string, email: string, address: string, id: number } | null>('user_data')
@@ -36,31 +32,12 @@ const checkoutForm = ref({
 watchEffect(() => {
   if (product.value) {
     useHead({ title: `${product.value.name} | Artisan` })
-    activeView.value = product.value.model3DUrl ? '3d' : 'photo'
   }
 })
 
-const generate3D = async () => {
-  if (!product.value || product.value.model3DUrl) return
+const toast = useToast()
 
-  isGenerating.value = true
-  
-  try {
-    const res = await $fetch('http://127.0.0.1:5000/api/generate-3d', {
-      method: 'POST',
-      body: { productId: product.value.id, imageUrl: product.value.coverImage }
-    })
-    
-    if (res.success) {
-      await refresh() // Recarga productos
-      activeView.value = '3d'
-    }
-  } catch (err) {
-    console.error(err)
-  } finally {
-    isGenerating.value = false
-  }
-}
+
 
 const initiateCheckout = async () => {
   if (!product.value) return
@@ -74,7 +51,7 @@ const initiateCheckout = async () => {
   isProcessingPayment.value = true
   
   try {
-    const res = await $fetch('http://127.0.0.1:5000/api/create-payment-intent', {
+    const res: any = await $fetch('http://127.0.0.1:5000/api/create-payment-intent', {
       method: 'POST',
       body: { 
         productId: product.value.id,
@@ -114,7 +91,7 @@ const initiateCheckout = async () => {
 
     <div v-else-if="!product" class="h-screen flex flex-col items-center justify-center text-[#2C241B]">
       <h1 class="text-4xl font-['Fraunces',serif] mb-6">Pieza no encontrada</h1>
-      <UButton to="/shop" :ui="{ rounded: 'rounded-sm' }" class="bg-transparent border border-[#C5A059]/30 text-[#C5A059] hover:bg-[#C5A059] hover:text-[#2C241B] hover:border-[#C5A059] uppercase tracking-[0.2em] px-8 py-3 text-xs font-bold transition-all duration-500">
+      <UButton to="/shop"  class="bg-transparent border border-[#C5A059]/30 text-[#C5A059] hover:bg-[#C5A059] hover:text-[#2C241B] hover:border-[#C5A059] uppercase tracking-[0.2em] px-8 py-3 text-xs font-bold transition-all duration-500">
         Volver a la colección
       </UButton>
     </div>
@@ -184,11 +161,11 @@ const initiateCheckout = async () => {
         </div>
 
         <div class="flex flex-col xl:flex-row gap-4">
-          <UButton @click="isCheckoutOpen = true" :disabled="product.stock <= 0" :ui="{ rounded: 'rounded-sm' }" class="px-8 py-5 uppercase tracking-[0.2em] bg-[#2C241B] text-[#F9F6F0] hover:bg-[#C5A059] hover:text-[#2C241B] border border-transparent hover:border-[#C5A059] justify-center text-xs font-bold transition-all duration-500 shadow-lg shadow-[#2C241B]/10 hover:shadow-xl flex-1">
+          <UButton @click="isCheckoutOpen = true" :disabled="product.stock <= 0"  class="px-8 py-5 uppercase tracking-[0.2em] bg-[#2C241B] text-[#F9F6F0] hover:bg-[#C5A059] hover:text-[#2C241B] border border-transparent hover:border-[#C5A059] justify-center text-xs font-bold transition-all duration-500 shadow-lg shadow-[#2C241B]/10 hover:shadow-xl flex-1">
             {{ product.stock > 0 ? 'Comprar Ahora' : 'Agotado' }}
           </UButton>
           
-          <UButton @click="cartStore.addToCart(product)" :disabled="product.stock <= 0" :ui="{ rounded: 'rounded-sm' }" class="px-8 py-5 uppercase tracking-[0.2em] bg-transparent border border-[#EAE5DC] text-[#2C241B] hover:bg-[#FDFBF7] hover:border-[#C5A059] justify-center text-xs font-bold transition-all duration-500 flex-1">
+          <UButton @click="cartStore.addToCart(product)" :disabled="product.stock <= 0"  class="px-8 py-5 uppercase tracking-[0.2em] bg-transparent border border-[#EAE5DC] text-[#2C241B] hover:bg-[#FDFBF7] hover:border-[#C5A059] justify-center text-xs font-bold transition-all duration-500 flex-1">
             Añadir a Cesta
           </UButton>
         </div>
@@ -280,81 +257,23 @@ const initiateCheckout = async () => {
         
         <div class="w-full aspect-[4/5] md:aspect-auto md:h-[80%] max-h-[800px] relative bg-[#F9F6F0] rounded-sm shadow-[0_20px_60px_rgba(44,36,27,0.05)] border border-[#EAE5DC] overflow-hidden group">
           
-          <!-- View Toggle (Sólo si hay modelo 3D) -->
-          <div v-if="product.model3DUrl" class="absolute top-4 right-4 z-50 flex bg-[#FDFBF7]/90 backdrop-blur-md rounded-sm shadow-md border border-[#EAE5DC] p-1">
-            <button @click="activeView = 'photo'" :class="activeView === 'photo' ? 'bg-[#2C241B] text-[#F9F6F0]' : 'text-[#2C241B]/60 hover:text-[#2C241B]'" class="px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold transition-colors rounded-sm">Foto</button>
-            <button @click="activeView = '3d'" :class="activeView === '3d' ? 'bg-[#2C241B] text-[#F9F6F0]' : 'text-[#2C241B]/60 hover:text-[#2C241B]'" class="px-4 py-1.5 text-[9px] uppercase tracking-widest font-bold transition-colors rounded-sm">3D / AR</button>
-          </div>
-
-          <!-- Loader de Generación IA -->
-          <div v-if="isGenerating" class="absolute inset-0 z-40 flex flex-col items-center justify-center text-[#2C241B] bg-[#F9F6F0]/80 backdrop-blur-sm">
-            <UIcon name="i-lucide-loader-2" class="w-12 h-12 mb-6 text-[#C5A059] animate-spin" />
-            <p class="font-['Fraunces',serif] text-2xl tracking-wide mb-3">Modelando en 3D...</p>
+          <!-- View Toggle -->
+          <div class="absolute top-4 right-4 z-50 flex bg-[#FDFBF7]/90 backdrop-blur-md rounded-sm shadow-[0_4px_20px_rgba(44,36,27,0.05)] border border-[#EAE5DC] p-1">
+            <button @click="isInspectingMode = false" :class="!isInspectingMode ? 'bg-[#2C241B] text-[#F9F6F0]' : 'text-[#2C241B]/60 hover:text-[#2C241B]'" class="px-5 py-2 text-[9px] uppercase tracking-widest font-bold transition-all duration-300 rounded-sm">Galería</button>
+            <button @click="isInspectingMode = true" :class="isInspectingMode ? 'bg-[#2C241B] text-[#F9F6F0]' : 'text-[#2C241B]/60 hover:text-[#2C241B]'" class="px-5 py-2 text-[9px] uppercase tracking-widest font-bold transition-all duration-300 rounded-sm">Detalles</button>
           </div>
 
           <!-- Imagen de Portada -->
-          <img v-show="activeView === 'photo' || !product.model3DUrl" :src="product.coverImage" :alt="product.name" class="absolute inset-0 w-full h-full object-contain opacity-90 transition-transform duration-[2s] group-hover:scale-[1.02]" />
+          <img v-show="!isInspectingMode" :src="product.coverImage" :alt="product.name" class="absolute inset-0 w-full h-full object-contain p-8 transition-transform duration-[2s] group-hover:scale-[1.02]" />
 
-          <!-- El componente 3D (Google Model Viewer con AR) -->
-          <ClientOnly v-if="product.model3DUrl">
-            <div v-show="activeView === '3d'" class="absolute inset-0 w-full h-full z-20 bg-[#F9F6F0]">
-              <model-viewer
-                :src="product.model3DUrl"
-                auto-rotate
-                camera-controls
-                shadow-intensity="1"
-                environment-image="neutral"
-                exposure="0.8"
-                ar
-                ar-modes="webxr scene-viewer quick-look"
-                class="w-full h-full"
-              >
-                <div slot="poster" class="w-full h-full flex flex-col items-center justify-center bg-[#FDFBF7]">
-                  <UIcon name="i-lucide-loader-2" class="w-10 h-10 mb-6 animate-spin text-[#C5A059]" />
-                  <p class="text-[10px] tracking-[0.2em] font-bold uppercase text-[#C5A059]">Descargando Geometría 3D...</p>
-                </div>
-                <button slot="ar-button" class="absolute bottom-4 right-4 bg-[#2C241B] text-[#F9F6F0] px-4 py-3 text-[10px] tracking-[0.2em] uppercase font-bold rounded-sm border border-[#C5A059]/40 flex items-center gap-2 shadow-lg z-50">
-                  <UIcon name="i-lucide-smartphone" class="w-4 h-4 text-[#C5A059]" />
-                  Ver en mi sala (AR)
-                </button>
-              </model-viewer>
-            </div>
-          </ClientOnly>
-          
-          <!-- Hotspots Interactivos (sólo si estamos en modo foto y no está generando) -->
-          <!-- Hotspot 1 -->
-          <div v-show="(activeView === 'photo' || !product.model3DUrl) && !isGenerating" class="absolute top-[30%] left-[25%] group/hotspot z-30">
-            <div class="w-6 h-6 bg-[#FDFBF7]/90 backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer shadow-lg border border-[#C5A059]/40 relative z-10 hover:bg-[#C5A059] hover:text-white transition-colors duration-300">
-              <span class="text-xs font-light leading-none mb-0.5">+</span>
-            </div>
-            <div class="absolute top-1/2 left-8 -translate-y-1/2 opacity-0 group-hover/hotspot:opacity-100 transform -translate-x-2 group-hover/hotspot:translate-x-0 transition-all duration-300 pointer-events-none w-max z-20">
-              <div class="bg-[#2C241B] text-[#F9F6F0] text-[10px] uppercase tracking-[0.15em] px-3 py-1.5 rounded-sm shadow-xl font-medium">
-                Veta natural expuesta
-              </div>
-            </div>
-            <!-- Ripple -->
-            <div class="absolute inset-0 bg-[#C5A059] rounded-full animate-ping opacity-20"></div>
-          </div>
-
-          <!-- Hotspot 2 -->
-          <div v-show="(activeView === 'photo' || !product.model3DUrl) && !isGenerating" class="absolute top-[60%] right-[30%] group/hotspot z-30">
-            <div class="w-6 h-6 bg-[#FDFBF7]/90 backdrop-blur-md rounded-full flex items-center justify-center cursor-pointer shadow-lg border border-[#C5A059]/40 relative z-10 hover:bg-[#C5A059] hover:text-white transition-colors duration-300">
-              <span class="text-xs font-light leading-none mb-0.5">+</span>
-            </div>
-            <div class="absolute top-1/2 right-8 -translate-y-1/2 opacity-0 group-hover/hotspot:opacity-100 transform translate-x-2 group-hover/hotspot:translate-x-0 transition-all duration-300 pointer-events-none w-max z-20">
-              <div class="bg-[#2C241B] text-[#F9F6F0] text-[10px] uppercase tracking-[0.15em] px-3 py-1.5 rounded-sm shadow-xl font-medium">
-                Ensamblaje tradicional
-              </div>
-            </div>
-            <!-- Ripple -->
-            <div class="absolute inset-0 bg-[#C5A059] rounded-full animate-ping opacity-20" style="animation-delay: 1s"></div>
-          </div>
+          <!-- El componente de Detalles Artesanales (Hotspots) -->
+          <ProductDetailsViewer v-if="isInspectingMode" :imageUrl="product.coverImage" :productName="product.name" :hotspots="product.hotspots" />
           
         </div>
 
-        <button v-if="!product.model3DUrl" @click="generate3D" class="mt-8 flex items-center gap-2 text-[#C5A059] hover:text-[#2C241B] transition-colors text-[10px] font-bold uppercase tracking-[0.2em] z-30 relative">
-          <UIcon :name="isGenerating ? 'i-lucide-loader-2' : 'i-lucide-wand-2'" :class="{'animate-spin': isGenerating}" class="w-4 h-4" />
-          {{ isGenerating ? 'Generando Modelo AI...' : 'Generar Vista 3D (AI)' }}
+        <button @click="isInspectingMode = true" v-if="!isInspectingMode" class="mt-8 flex items-center gap-2 text-[#C5A059] hover:text-[#2C241B] transition-colors text-[10px] font-bold uppercase tracking-[0.2em] z-30 relative">
+          <UIcon name="i-lucide-search" class="w-4 h-4" />
+          Análisis Artesanal
         </button>
 
       </div>
